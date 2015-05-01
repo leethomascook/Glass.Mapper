@@ -38,7 +38,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// A strongly typed class representation of the item
         /// </returns>
-        public static T GlassCast<T>(this IContent content, IUmbracoService service, bool isLazy = false, bool inferType = false) where T : class
+        public static T GlassCast<T>(this IPublishedContent content, IUmbracoService service, bool isLazy = false, bool inferType = false) where T : class
         {
             return service.CreateType<T>(content, isLazy, inferType);
         }
@@ -53,7 +53,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// A strongly typed class representation of the item
         /// </returns>
-        public static T GlassCast<T>(this IContent content, bool isLazy = false, bool inferType = false) where T : class
+        public static T GlassCast<T>(this IPublishedContent content, bool isLazy = false, bool inferType = false) where T : class
         {
             var service = new UmbracoService(new ContentService());
             return content.GlassCast<T>(service, isLazy, inferType);

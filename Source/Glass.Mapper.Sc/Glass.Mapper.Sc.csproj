@@ -86,6 +86,12 @@
     <Reference Include="Sitecore.Kernel">
       <HintPath>..\..\Depends\Sitecore\bin6\Sitecore.Kernel.dll</HintPath>
     </Reference>
+    <Reference Include="umbraco">
+      <HintPath>..\..\Depends\UmbracoDebug\umbraco.dll</HintPath>
+    </Reference>
+    <Reference Include="Umbraco.Core">
+      <HintPath>..\..\Depends\UmbracoDebug\Umbraco.Core.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CodeFirst\FieldInfo.cs" />

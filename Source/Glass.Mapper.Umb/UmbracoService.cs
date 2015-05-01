@@ -21,6 +21,7 @@ using Glass.Mapper.Umb.Configuration;
 using Umbraco.Core.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Services;
+using umbraco.NodeFactory;
 
 namespace Glass.Mapper.Umb
 {
@@ -70,7 +71,9 @@ namespace Glass.Mapper.Umb
         /// <returns></returns>
         public T GetHomeItem<T>(bool isLazy = false, bool inferType = false) where T : class
         {
-            var item = ContentService.GetChildren(-1).FirstOrDefault();
+            var rootNodeId = new Node(-1).ChildrenAsList.First().Id;
+            var item = Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(rootNodeId).Children.FirstOrDefault();
+           // var item = ContentService.GetChildren(-1).FirstOrDefault();
             return CreateType(typeof(T), item, isLazy, inferType) as T;
         }
 
@@ -88,9 +91,8 @@ namespace Glass.Mapper.Umb
             {
                 return null;
             }
-            var item = PublishedOnly
-                           ? ContentService.GetPublishedVersion(id.Value)
-                           : ContentService.GetById(id.Value);
+            var item = Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(id.Value);
+                        
 
             return CreateType(typeof(T), item, isLazy, inferType) as T;
         }
@@ -105,12 +107,10 @@ namespace Glass.Mapper.Umb
         /// <returns></returns>
         public T GetItem<T>(Guid id, bool isLazy = false, bool inferType = false) where T : class
         {
-            var item = ContentService.GetById(id);
+            var item = ContentService.GetById(id); //TODO - this is still hitting the DB
+            var item2 = Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(item.Id);
 
-            if (PublishedOnly)
-                item = ContentService.GetPublishedVersion(item.Id);
-
-            return CreateType(typeof(T), item, isLazy, inferType) as T;
+            return CreateType(typeof(T), item2, isLazy, inferType) as T;
         }
 
         /// <summary>
@@ -148,7 +148,7 @@ namespace Glass.Mapper.Umb
         /// <param name="constructorParameters">Parameters to pass to the constructor of the new class. Must be in the order specified on the consturctor.</param>
         /// <returns></returns>
         /// <exception cref="System.NotSupportedException">Maximum number of constructor parameters is 4</exception>
-        public object CreateType(Type type, IContent content, bool isLazy, bool inferType, params object[] constructorParameters)
+        public object CreateType(Type type, IPublishedContent content, bool isLazy, bool inferType, params object[] constructorParameters)
         {
             if (content == null) return null;
 
@@ -181,7 +181,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        public T CreateType<T>(IContent content, bool isLazy = false, bool inferType = false) where T : class
+        public T CreateType<T>(IPublishedContent content, bool isLazy = false, bool inferType = false) where T : class
         {
             return (T)CreateType(typeof(T), content, isLazy, inferType);
         }
@@ -198,7 +198,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        public T CreateType<T, K>(IContent content, K param1, bool isLazy = false, bool inferType = false)
+        public T CreateType<T, K>(IPublishedContent content, K param1, bool isLazy = false, bool inferType = false)
         {
             return (T)CreateType(typeof(T), content, isLazy, inferType, param1);
 
@@ -218,7 +218,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        public T CreateType<T, K, L>(IContent content, K param1, L param2, bool isLazy = false, bool inferType = false)
+        public T CreateType<T, K, L>(IPublishedContent content, K param1, L param2, bool isLazy = false, bool inferType = false)
         {
             return (T)CreateType(typeof(T), content, isLazy, inferType, param1, param2);
         }
@@ -239,7 +239,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        public T CreateType<T, K, L, M>(IContent content, K param1, L param2, M param3, bool isLazy = false, bool inferType = false)
+        public T CreateType<T, K, L, M>(IPublishedContent content, K param1, L param2, M param3, bool isLazy = false, bool inferType = false)
         {
             return (T)CreateType(typeof(T), content, isLazy, inferType, param1, param2, param3);
         }
@@ -262,7 +262,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        public T CreateType<T, K, L, M, N>(IContent content, K param1, L param2, M param3, N param4, bool isLazy = false, bool inferType = false)
+        public T CreateType<T, K, L, M, N>(IPublishedContent content, K param1, L param2, M param3, N param4, bool isLazy = false, bool inferType = false)
         {
             return (T)CreateType(typeof(T), content, isLazy, inferType, param1, param2, param3, param4);
         }
@@ -289,59 +289,7 @@ namespace Glass.Mapper.Umb
         public T Create<T, TParent>(TParent parent, T newItem) where T : class 
                                                                where TParent : class
         {
-            UmbracoTypeConfiguration newType;
-
-            try
-            {
-                newType = GlassContext.GetTypeConfiguration<UmbracoTypeConfiguration>(newItem);
-            }
-            catch (Exception ex)
-            {
-                throw new MapperException("Failed to find configuration for new item type {0}".Formatted(typeof(T).FullName), ex);
-            }
-            
-            UmbracoTypeConfiguration parentType;
-
-            try
-            {
-                parentType = GlassContext.GetTypeConfiguration<UmbracoTypeConfiguration>(parent);
-            }
-            catch (Exception ex)
-            {
-                throw new MapperException("Failed to find configuration for parent item type {0}".Formatted(typeof(int).FullName), ex);
-            }
-            
-            var pItem = parentType.ResolveItem(parent, ContentService);
-
-            if (pItem == null)
-                throw new MapperException("Could not find parent item");
-            
-            var nameProperty = newType.Properties.Where(x => x is UmbracoInfoConfiguration)
-                .Cast<UmbracoInfoConfiguration>().FirstOrDefault(x => x.Type == UmbracoInfoType.Name);
-
-            if (nameProperty == null)
-                throw new MapperException("The type {0} does not have a property with attribute UmbracoInfo(UmbracoInfoType.Name)".Formatted(newType.Type.FullName));
-            
-            string tempName = Guid.NewGuid().ToString();
-            var content = ContentService.CreateContent(tempName, pItem, newType.ContentTypeAlias);
-
-            if (content == null) throw new MapperException("Failed to create item");
-
-            //write new data to the item
-
-            WriteToItem(newItem, content);
-
-            //then read it back
-
-            var typeContext = new UmbracoTypeCreationContext
-                {
-                    Content = content, 
-                    UmbracoService = this
-                };
-
-            newType.MapPropertiesToObject(newItem, this, typeContext);
-
-            return newItem;
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -353,19 +301,7 @@ namespace Glass.Mapper.Umb
         /// <param name="config">The config.</param>
         public void WriteToItem<T>(T target, IContent content, UmbracoTypeConfiguration config = null)
         {
-            if (config == null)
-                config = GlassContext.GetTypeConfiguration<UmbracoTypeConfiguration>(target);
-
-            var savingContext = new UmbracoTypeSavingContext
-                {
-                    Config = config, 
-                    Content = content, 
-                    Object = target
-                };
-
-            //ME-an item with no versions should be null
-
-            SaveObject(savingContext);
+           throw new NotImplementedException();
         }
 
         /// <summary>
@@ -390,8 +326,7 @@ namespace Glass.Mapper.Umb
         /// <param name="abstractTypeSavingContext">The abstract type saving context.</param>
         public override void SaveObject(AbstractTypeSavingContext abstractTypeSavingContext)
         {
-            ContentService.Save(((UmbracoTypeSavingContext) abstractTypeSavingContext).Content);
-            base.SaveObject(abstractTypeSavingContext);
+           throw new NotImplementedException();
         }
 
         /// <summary>

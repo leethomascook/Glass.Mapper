@@ -51,7 +51,7 @@ namespace Glass.Mapper.Umb.DataMappers
         /// <returns>
         /// System.Object.
         /// </returns>
-        public override object GetProperty(Property property, UmbracoPropertyConfiguration config, UmbracoDataMappingContext context)
+        public override object GetProperty(IPublishedProperty property, UmbracoPropertyConfiguration config, UmbracoDataMappingContext context)
         {
             if (property.Value != null)
                 return null;

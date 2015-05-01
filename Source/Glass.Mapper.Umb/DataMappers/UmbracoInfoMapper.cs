@@ -49,32 +49,7 @@ namespace Glass.Mapper.Umb.DataMappers
         /// </exception>
         public override void MapToCms(AbstractDataMappingContext mappingContext)
         {
-            var context = mappingContext as UmbracoDataMappingContext;
-            var content = context.Content;
-            var value = context.PropertyValue;
-            var config = Configuration as UmbracoInfoConfiguration;
-
-            switch (config.Type)
-            {
-                case UmbracoInfoType.Name:
-                    if (value is string || value == null)
-                    {
-                        //if the name is null or empty nothing should happen
-                        if ((value ?? string.Empty).ToString().IsNullOrEmpty())
-                            throw new MapperException("You can not set an empty or null Item name");
-
-                        if (content.Name != value.ToString())
-                        {
-                            content.Name = value.ToString();
-                            context.Service.ContentService.Save(content);
-                        }
-                    }
-                    else
-                        throw new NotSupportedException("Can't set Name. Value is not of type System.String");
-                    break;
-                default:
-                    throw new NotSupportedException("You can not save UmbracoInfo {0}".Formatted(config.Type));
-            }
+           throw new NotImplementedException();
         }
 
         /// <summary>
@@ -97,8 +72,8 @@ namespace Glass.Mapper.Umb.DataMappers
                     return content.Path;
                 case UmbracoInfoType.ContentTypeAlias:
                     return content.ContentType.Alias;
-                case UmbracoInfoType.ContentTypeName:
-                    return content.ContentType.Name;
+                //case UmbracoInfoType.ContentTypeName: //TODO LC
+                //    return content.ContentType.Alias;
                 //case UmbracoInfoType.Url:
                 //    return content.Name.FormatUrl().ToLower();
                 case UmbracoInfoType.CreateDate:

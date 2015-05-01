@@ -106,7 +106,8 @@ namespace Glass.Mapper.Umb.Web.Ui
         protected override void InitializePage()
         {
             base.InitializePage();
-            Model = UmbracoService.CreateType<T>(UmbracoService.ContentService.GetPublishedVersion(base.Umbraco.AssignedContentItem.Id));
+
+            Model = UmbracoService.CreateType<T>(global::Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(base.Umbraco.AssignedContentItem.Id));
         }
 
         /// <summary>

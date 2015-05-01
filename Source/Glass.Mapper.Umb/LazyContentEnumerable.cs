@@ -31,7 +31,7 @@ namespace Glass.Mapper.Umb
     /// <typeparam name="T"></typeparam>
     public class LazyContentEnumerable<T> : IEnumerable<T> where T:class 
     {
-        private readonly Func<IEnumerable<IContent>> _getItems;
+        private readonly Func<IEnumerable<IPublishedContent>> _getItems;
         private readonly Type _type;
         private readonly bool _isLazy;
         private readonly bool _inferType;
@@ -46,7 +46,7 @@ namespace Glass.Mapper.Umb
         /// <param name="inferType">if set to <c>true</c> [infer type].</param>
         /// <param name="service">The service.</param>
         public LazyContentEnumerable(
-            Func<IEnumerable<IContent>> getItems,
+            Func<IEnumerable<IPublishedContent>> getItems,
             bool isLazy,
             bool inferType,
             IUmbracoService service
@@ -67,7 +67,7 @@ namespace Glass.Mapper.Umb
         /// <returns></returns>
         public IEnumerable<T> ProcessItems()
         {
-            foreach (IContent child in _getItems())
+            foreach (IPublishedContent child in _getItems())
             {
                 var obj = _service.CreateType(
                     _type,

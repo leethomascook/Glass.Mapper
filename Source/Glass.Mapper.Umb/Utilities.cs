@@ -71,7 +71,11 @@ namespace Glass.Mapper.Umb
 		private static ActivationManager.CompiledActivator<object> GetActivator(Type forType, IEnumerable<Type> parameterTypes = null)
 		{
 			var paramTypes = parameterTypes == null ? null : parameterTypes.ToArray();
-			return Activators.GetOrAdd(forType, type => ActivationManager.GetActivator<object>(type, paramTypes));
+			return Activators.GetOrAdd(forType,
+			    delegate(Type type)
+			    {
+			        return ActivationManager.GetActivator<object>(type, paramTypes);
+			    });
 		}
     }
 }

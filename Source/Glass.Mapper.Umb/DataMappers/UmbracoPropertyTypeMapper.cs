@@ -41,9 +41,8 @@ namespace Glass.Mapper.Umb.DataMappers
             if (propertyValue == null || !int.TryParse(propertyValue.ToString(), out id))
                 return null;
 
-            var item = context.PublishedOnly
-                           ? context.Service.ContentService.GetPublishedVersion(id)
-                           : context.Service.ContentService.GetById(id);
+            var item = Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(id);
+         
 
             return context.Service.CreateType(config.PropertyInfo.PropertyType, item, IsLazy, InferType);
         }

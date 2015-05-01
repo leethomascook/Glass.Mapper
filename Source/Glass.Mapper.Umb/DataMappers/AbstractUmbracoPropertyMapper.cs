@@ -52,16 +52,7 @@ namespace Glass.Mapper.Umb.DataMappers
         /// <param name="mappingContext"></param>
         public override void MapToCms(AbstractDataMappingContext mappingContext)
         {
-            var config = Configuration as UmbracoPropertyConfiguration;
-            var context =  mappingContext  as UmbracoDataMappingContext;
-
-            if (context.Content.Properties.Contains(config.PropertyAlias))
-            {
-                var property = context.Content.Properties[config.PropertyAlias];
-                object value = Configuration.PropertyInfo.GetValue(mappingContext.Object, null);
-
-                SetProperty(property, value, config, context);
-            }
+           throw new NotImplementedException();
         }
 
         /// <summary>
@@ -74,9 +65,9 @@ namespace Glass.Mapper.Umb.DataMappers
             var config = Configuration as UmbracoPropertyConfiguration;
             var context = mappingContext as UmbracoDataMappingContext;
 
-            if (context.Content.Properties.Select(p => p.Alias.ToLowerInvariant()).Contains(config.PropertyAlias.ToLowerInvariant()))
+            if (context.Content.Properties.Select(p => p.PropertyTypeAlias.ToLowerInvariant()).Contains(config.PropertyAlias.ToLowerInvariant()))
             {
-                var property = context.Content.Properties.FirstOrDefault(p => p.Alias.ToLowerInvariant() == config.PropertyAlias.ToLowerInvariant());
+                var property = context.Content.Properties.FirstOrDefault(p => p.PropertyTypeAlias.ToLowerInvariant() == config.PropertyAlias.ToLowerInvariant());
                 return GetProperty(property, config, context);
             }
 
@@ -90,7 +81,7 @@ namespace Glass.Mapper.Umb.DataMappers
         /// <param name="config">The config.</param>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        public virtual object GetProperty(Property property, UmbracoPropertyConfiguration config, UmbracoDataMappingContext context)
+        public virtual object GetProperty(IPublishedProperty property, UmbracoPropertyConfiguration config, UmbracoDataMappingContext context)
         {
             var propertyValue = property.Value;
 

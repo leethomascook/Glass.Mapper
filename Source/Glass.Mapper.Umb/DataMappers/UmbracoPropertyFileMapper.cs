@@ -19,6 +19,7 @@
 
 using System;
 using Glass.Mapper.Umb.Configuration;
+using Umbraco.Core.Models;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Services;
 using File = Glass.Mapper.Umb.PropertyTypes.File;
@@ -45,7 +46,7 @@ namespace Glass.Mapper.Umb.DataMappers
         /// <param name="config">The config.</param>
         /// <param name="context">The context.</param>
         /// <returns></returns>
-        public override object GetProperty(Umbraco.Core.Models.Property property, UmbracoPropertyConfiguration config, UmbracoDataMappingContext context)
+        public override object GetProperty(IPublishedProperty property, UmbracoPropertyConfiguration config, UmbracoDataMappingContext context)
         {
             if (property == null || property.Value == null)
                 return null;

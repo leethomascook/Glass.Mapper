@@ -81,7 +81,7 @@ namespace Glass.Mapper.Umb
         /// <param name="inferType">if set to <c>true</c> [infer type].</param>
         /// <param name="constructorParameters">The constructor parameters.</param>
         /// <returns></returns>
-        object CreateType(Type type, IContent content, bool isLazy, bool inferType,
+        object CreateType(Type type, IPublishedContent content, bool isLazy, bool inferType,
                           params object[] constructorParameters);
         
         /// <summary>
@@ -94,7 +94,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        T CreateType<T>(IContent content, bool isLazy = false, bool inferType = false) where T : class;
+        T CreateType<T>(IPublishedContent content, bool isLazy = false, bool inferType = false) where T : class;
 
         /// <summary>
         /// Creates a class from the specified content with a single constructor parameter
@@ -108,7 +108,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        T CreateType<T, K>(IContent content, K param1, bool isLazy = false, bool inferType = false);
+        T CreateType<T, K>(IPublishedContent content, K param1, bool isLazy = false, bool inferType = false);
 
         /// <summary>
         /// Creates a class from the specified content with a two constructor parameter
@@ -124,7 +124,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        T CreateType<T, K, L>(IContent content, K param1, L param2, bool isLazy = false, bool inferType = false);
+        T CreateType<T, K, L>(IPublishedContent content, K param1, L param2, bool isLazy = false, bool inferType = false);
 
         /// <summary>
         /// Creates a class from the specified content with a two constructor parameter
@@ -142,7 +142,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        T CreateType<T, K, L, M>(IContent content, K param1, L param2, M param3, bool isLazy = false, bool inferType = false);
+        T CreateType<T, K, L, M>(IPublishedContent content, K param1, L param2, M param3, bool isLazy = false, bool inferType = false);
 
         /// <summary>
         /// Creates a class from the specified content with a two constructor parameter
@@ -162,7 +162,7 @@ namespace Glass.Mapper.Umb
         /// <returns>
         /// The item as the specified type
         /// </returns>
-        T CreateType<T, K, L, M, N>(IContent content, K param1, L param2, M param3, N param4, bool isLazy = false, bool inferType = false);
+        T CreateType<T, K, L, M, N>(IPublishedContent content, K param1, L param2, M param3, N param4, bool isLazy = false, bool inferType = false);
 
         /// <summary>
         /// Creates a new umbraco class.

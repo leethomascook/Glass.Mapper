@@ -60,8 +60,8 @@ namespace Glass.Mapper.Umb.DataMappers
 
             if (umbConfig.PropertyInfo.PropertyType == typeof(int))
                 return node.Id;
-            if (umbConfig.PropertyInfo.PropertyType == typeof(Guid))
-                return node.Key;
+            //if (umbConfig.PropertyInfo.PropertyType == typeof(Guid))
+            //    return node.;
             
             throw new NotSupportedException("The type {0} on {0}.{1} is not supported by UmbracoIdMapper".Formatted
                                                 (umbConfig.PropertyInfo.ReflectedType.FullName,
