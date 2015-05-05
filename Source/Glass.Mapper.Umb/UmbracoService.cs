@@ -25,11 +25,39 @@ using umbraco.NodeFactory;
 
 namespace Glass.Mapper.Umb
 {
+
+    public interface ICachedContentService
+    {
+        IPublishedContent GetById(int nodeId);
+    }
+
+    public class CachedContentService : ICachedContentService
+    {
+        private Umbraco.Web.UmbracoContext _context;
+
+        public CachedContentService()
+        {
+            _context = Umbraco.Web.UmbracoContext.Current;
+
+        }
+
+        public CachedContentService(Umbraco.Web.UmbracoContext context)
+        {
+            _context = context;
+        }
+
+        public IPublishedContent GetById(int nodeId)
+        {
+            return _context.ContentCache.GetById(nodeId);
+        }
+    }
     /// <summary>
     /// Class UmbracoService
     /// </summary>
     public class UmbracoService : AbstractService, IUmbracoService
     {
+     
+
         /// <summary>
         /// Gets the content service.
         /// </summary>
@@ -38,6 +66,8 @@ namespace Glass.Mapper.Umb
         /// </value>
         public IContentService ContentService { get; private set; }
 
+        public ICachedContentService CachedContentService { get; set; }
+
         public bool PublishedOnly { get; set; }
 
         /// <summary>
@@ -45,10 +75,11 @@ namespace Glass.Mapper.Umb
         /// </summary>
         /// <param name="contentService">The content service.</param>
         /// <param name="contextName">Name of the context.</param>
-        public UmbracoService(IContentService contentService, string contextName = "Default")
+        public UmbracoService(IContentService contentService, string contextName = "Default", ICachedContentService cachedContentService = null)
             :base(contextName)
         {
             ContentService = contentService;
+            CachedContentService = cachedContentService;
         }
 
         /// <summary>
@@ -56,9 +87,10 @@ namespace Glass.Mapper.Umb
         /// </summary>
         /// <param name="contentService">The content service.</param>
         /// <param name="context">The context.</param>
-        public UmbracoService(IContentService contentService, Context context)
+        public UmbracoService(IContentService contentService, Context context, ICachedContentService cachedContentService = null)
             : base(context ?? Context.Default)
         {
+            CachedContentService = cachedContentService;
             ContentService = contentService;
         }
 
@@ -72,7 +104,7 @@ namespace Glass.Mapper.Umb
         public T GetHomeItem<T>(bool isLazy = false, bool inferType = false) where T : class
         {
             var rootNodeId = new Node(-1).ChildrenAsList.First().Id;
-            var item = Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(rootNodeId).Children.FirstOrDefault();
+            var item = CachedContentService.GetById(rootNodeId).Children.FirstOrDefault();
            // var item = ContentService.GetChildren(-1).FirstOrDefault();
             return CreateType(typeof(T), item, isLazy, inferType) as T;
         }
@@ -91,7 +123,7 @@ namespace Glass.Mapper.Umb
             {
                 return null;
             }
-            var item = Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(id.Value);
+            var item = CachedContentService.GetById(id.Value);
                         
 
             return CreateType(typeof(T), item, isLazy, inferType) as T;
@@ -108,7 +140,7 @@ namespace Glass.Mapper.Umb
         public T GetItem<T>(Guid id, bool isLazy = false, bool inferType = false) where T : class
         {
             var item = ContentService.GetById(id); //TODO - this is still hitting the DB
-            var item2 = Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(item.Id);
+            var item2 = CachedContentService.GetById(item.Id);
 
             return CreateType(typeof(T), item2, isLazy, inferType) as T;
         }

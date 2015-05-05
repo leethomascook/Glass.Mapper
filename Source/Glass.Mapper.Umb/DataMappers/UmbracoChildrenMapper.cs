@@ -28,11 +28,20 @@ namespace Glass.Mapper.Umb.DataMappers
     /// </summary>
     public class UmbracoChildrenMapper : AbstractDataMapper
     {
+        private readonly ICachedContentService _cachedContentService;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="UmbracoChildrenMapper"/> class.
         /// </summary>
+        public UmbracoChildrenMapper(ICachedContentService cachedContentService)
+        {
+            _cachedContentService = cachedContentService;
+            ReadOnly = true;
+        }
+
         public UmbracoChildrenMapper()
         {
+            _cachedContentService = new CachedContentService();
             ReadOnly = true;
         }
 
@@ -63,14 +72,14 @@ namespace Glass.Mapper.Umb.DataMappers
             {
                 if (String.IsNullOrWhiteSpace(umbConfig.DocumentTypeAlias))
                 {
-                    getItems = () => Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(umbContext.Content.Id).Children
-                                     .Select(c => Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(c.Id));
+                    getItems = () => _cachedContentService.GetById(umbContext.Content.Id).Children
+                                     .Select(c => _cachedContentService.GetById(c.Id));
                 }
                 else
                 {
-                    getItems = () => Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(umbContext.Content.Id).Children
+                    getItems = () => _cachedContentService.GetById(umbContext.Content.Id).Children
                         .Where(c => c.ContentType.Alias == umbConfig.DocumentTypeAlias)
-                        .Select(c => Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(c.Id));
+                        .Select(c => _cachedContentService.GetById(c.Id));
                 }
             }
 
@@ -83,11 +92,11 @@ namespace Glass.Mapper.Umb.DataMappers
             {
                 if (String.IsNullOrWhiteSpace(umbConfig.DocumentTypeAlias))
                 {
-                    getItems = () => Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(umbContext.Content.Id).Children;
+                    getItems = () => _cachedContentService.GetById(umbContext.Content.Id).Children;
                 }
                 else
                 {
-                    getItems = () => Umbraco.Web.UmbracoContext.Current.ContentCache.GetById(umbContext.Content.Id).Children.Where(c => c.ContentType.Alias == umbConfig.DocumentTypeAlias);
+                    getItems = () => _cachedContentService.GetById(umbContext.Content.Id).Children.Where(c => c.ContentType.Alias == umbConfig.DocumentTypeAlias);
                 }
             }
 
